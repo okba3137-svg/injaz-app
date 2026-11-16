@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>تطبيق إنجاز</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 78px;
+    }
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .app-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      background: rgba(59, 130, 246, 0.18);
+      color: #60a5fa;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+    main {
+      flex: 1;
+      padding: 16px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .tab-section {
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+    .tab-section.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #60a5fa;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--surface-light);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-accent { background: var(--accent); }
+    .btn-danger { background: var(--danger); }
+    .btn-ghost { background: var(--surface-light); }
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .task-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      cursor: pointer;
+    }
+    .check-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: #fff;
+    }
+    .task-item.done .check-circle {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .task-text {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .del-btn {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .note-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .note-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #93c5fd;
+    }
+    .note-body {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .note-date {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .timer-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .timer-display {
+      font-size: 3.4rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 14px 0;
+      font-variant-numeric: tabular-nums;
+      color: #60a5fa;
+    }
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .calc-screen {
+      background: #0f172a;
+      border: 1px solid var(--surface-light);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: left;
+      font-size: 1.5rem;
+      font-weight: 700;
+      min-height: 54px;
+      overflow-x: auto;
+      direction: ltr;
+    }
+    .calc-btn {
+      background: var(--surface-light);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .calc-btn.op { background: #1d4ed8; }
+    .calc-btn.eq { background: var(--accent); }
+    .empty-state {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px 12px;
+      font-size: 0.9rem;
+    }
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1e293b;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 10px;
+      z-index: 20;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 14px;
+    }
+    .nav-btn.active {
+      color: #60a5fa;
+    }
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div class="app-title">⚡ تطبيق إنجاز</div>
+      <span class="badge">يعمل بدون إنترنت</span>
+    </div>
+    <div class="subtitle" id="todayDate">منظم المهام والملاحظات اليومية</div>
+  </header>
+
+  <main>
+    <section id="tab-tasks" class="tab-section active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">إجمالي المهام</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statDone" style="color:#34d399;">0</div>
+          <div class="stat-label">مكتملة</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statPending" style="color:#fbbf24;">0</div>
+          <div class="stat-label">متبقية</div>
+        </div>
+      </div>
+
+      <div class="input-card">
+        <div class="input-row">
+          <input type="text" id="taskInput" placeholder="اكتب مهمة جديدة..." onkeypress="if(event.key==='Enter') addTask()" />
+          <button class="btn" onclick="addTask()">إضافة</button>
+        </div>
+      </div>
+
+      <div class="item-list" id="taskList"></div>
+    </section>
+
+    <section id="tab-notes" class="tab-section">
+      <div class="input-card">
+        <input type="text" id="noteTitle" placeholder="عنوان الملاحظة..." style="margin-bottom:8px;" />
+        <textarea id="noteContent" rows="3" placeholder="اكتب تفاصيل ملاحظتك هنا..." style="margin-bottom:10px;"></textarea>
+        <button class="btn" style="width:100%;" onclick="addNote()">حفظ الملاحظة</button>
+      </div>
+      <div class="item-list" id="noteList"></div>
+    </section>
+
+    <section id="tab-tools" class="tab-section">
+      <div class="timer-box">
+        <div style="font-weight:700; color:#93c5fd;">⏱️ مؤقت التركيز (25 دقيقة)</div>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="timer-controls">
+          <button class="btn btn-accent" onclick="startTimer()">بدء</button>
+          <button class="btn btn-ghost" onclick="pauseTimer()">إيقاف مؤقت</button>
+          <button class="btn btn-danger" onclick="resetTimer()">إعادة</button>
+        </div>
+      </div>
+
+      <div class="input-card">
+        <div style="font-weight:700; margin-bottom:10px; color:#93c5fd;">🧮 آلة حاسبة سريعة</div>
+        <div class="calc-screen" id="calcScreen">0</div>
+        <div class="calc-grid">
+          <button class="calc-btn" onclick="calcAppend('7')">7</button>
+          <button class="calc-btn" onclick="calcAppend('8')">8</button>
+          <button class="calc-btn" onclick="calcAppend('9')">9</button>
+          <button class="calc-btn op" onclick="calcAppend('/')">÷</button>
+          <button class="calc-btn" onclick="calcAppend('4')">4</button>
+          <button class="calc-btn" onclick="calcAppend('5')">5</button>
+          <button class="calc-btn" onclick="calcAppend('6')">6</button>
+          <button class="calc-btn op" onclick="calcAppend('*')">×</button>
+          <button class="calc-btn" onclick="calcAppend('1')">1</button>
+          <button class="calc-btn" onclick="calcAppend('2')">2</button>
+          <button class="calc-btn" onclick="calcAppend('3')">3</button>
+          <button class="calc-btn op" onclick="calcAppend('-')">−</button>
+          <button class="calc-btn" onclick="calcClear()">C</button>
+          <button class="calc-btn" onclick="calcAppend('0')">0</button>
+          <button class="calc-btn eq" onclick="calcEval()">=</button>
+          <button class="calc-btn op" onclick="calcAppend('+')">+</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('tasks', this)">
+      <span class="nav-icon">✅</span>
+      <span>المهام</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('notes', this)">
+      <span class="nav-icon">📝</span>
+      <span>الملاحظات</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('tools', this)">
+      <span class="nav-icon">🛠️</span>
+      <span>الأدوات</span>
+    </button>
+  </nav>
+
+  <script>
+    try {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ar-SA', options);
+    } catch (e) {}
+
+    function notifyNative(msg) {
+      if (window.AndroidNative) {
+        try { window.AndroidNative.vibrateShort(); } catch (e) {}
+        if (msg) {
+          try { window.AndroidNative.showToast(msg); } catch (e) {}
+        }
+      }
+    }
+
+    function switchTab(tabName, btn) {
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      btn.classList.add('active');
+      notifyNative('');
+    }
+
+    let tasks = JSON.parse(localStorage.getItem('injaz_tasks') || '[]');
+    if (tasks.length === 0 && !localStorage.getItem('injaz_initialized')) {
+      tasks = [
+        { id: 1, text: 'مرحباً بك في تطبيق إنجاز! اضغط لإتمام المهمة', done: false },
+        { id: 2, text: 'مراجعة المهام اليومية وتنظيم الوقت', done: true }
+      ];
+      localStorage.setItem('injaz_initialized', '1');
+      saveTasks();
+    }
+
+    function saveTasks() {
+      localStorage.setItem('injaz_tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const text = input.value.trim();
+      if (!text) return;
+      tasks.unshift({ id: Date.now(), text, done: false });
+      input.value = '';
+      saveTasks();
+      notifyNative('تمت إضافة المهمة');
+    }
+
+    function toggleTask(id) {
+      tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+      saveTasks();
+      notifyNative('');
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      saveTasks();
+      notifyNative('تم حذف المهمة');
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      const total = tasks.length;
+      const done = tasks.filter(t => t.done).length;
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statDone').textContent = done;
+      document.getElementById('statPending').textContent = total - done;
+
+      if (total === 0) {
+        list.innerHTML = '<div class="empty-state">لا توجد مهام حالياً. أضف أول مهمة لك بالأعلى!</div>';
+        return;
+      }
+      list.innerHTML = tasks.map(t => `
+        <div class="task-item ${t.done ? 'done' : ''}">
+          <div class="task-left" onclick="toggleTask(${t.id})">
+            <div class="check-circle">${t.done ? '✓' : ''}</div>
+            <div class="task-text">${escapeHtml(t.text)}</div>
+          </div>
+          <button class="del-btn" onclick="deleteTask(${t.id})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    let notes = JSON.parse(localStorage.getItem('injaz_notes') || '[]');
+
+    function saveNotes() {
+      localStorage.setItem('injaz_notes', JSON.stringify(notes));
+      renderNotes();
+    }
+
+    function addNote() {
+      const title = document.getElementById('noteTitle').value.trim() || 'ملاحظة بدون عنوان';
+      const content = document.getElementById('noteContent').value.trim();
+      if (!content) return;
+      notes.unshift({
+        id: Date.now(),
+        title,
+        content,
+        date: new Date().toLocaleDateString('ar-SA')
+      });
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteContent').value = '';
+      saveNotes();
+      notifyNative('تم حفظ الملاحظة');
+    }
+
+    function deleteNote(id) {
+      notes = notes.filter(n => n.id !== id);
+      saveNotes();
+      notifyNative('تم حذف الملاحظة');
+    }
+
+    function renderNotes() {
+      const list = document.getElementById('noteList');
+      if (notes.length === 0) {
+        list.innerHTML = '<div class="empty-state">لا توجد ملاحظات محفوظة بعد.</div>';
+        return;
+      }
+      list.innerHTML = notes.map(n => `
+        <div class="note-card">
+          <div class="note-header">
+            <div class="note-title">${escapeHtml(n.title)}</div>
+            <button class="del-btn" onclick="deleteNote(${n.id})">✕</button>
+          </div>
+          <div class="note-body">${escapeHtml(n.content)}</div>
+          <div class="note-date">${escapeHtml(n.date)}</div>
+        </div>
+      `).join('');
+    }
+
+    let timerSeconds = 25 * 60;
+    let timerInterval = null;
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const s = String(timerSeconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+      notifyNative('بدأ مؤقت التركيز');
+      timerInterval = setInterval(() => {
+        if (timerSeconds > 0) {
+          timerSeconds--;
+          updateTimerDisplay();
+        } else {
+          pauseTimer();
+          notifyNative('انتهى وقت التركيز! أحسنت');
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerSeconds = 25 * 60;
+      updateTimerDisplay();
+    }
+
+    let calcExpr = '';
+    function calcAppend(val) {
+      calcExpr += val;
+      document.getElementById('calcScreen').textContent = calcExpr;
+    }
+    function calcClear() {
+      calcExpr = '';
+      document.getElementById('calcScreen').textContent = '0';
+    }
+    function calcEval() {
+      try {
+        if (!/^[0-9+\-*/.]+$/.test(calcExpr)) return;
+        const res = Function('"use strict";return (' + calcExpr + ')')();
+        calcExpr = String(Number.isFinite(res) ? Number(res.toFixed(6)) : 'خطأ');
+        document.getElementById('calcScreen').textContent = calcExpr;
+      } catch (e) {
+        document.getElementById('calcScreen').textContent = 'خطأ';
+        calcExpr = '';
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    renderTasks();
+    renderNotes();
+  </script>
+</body>
+</html>
